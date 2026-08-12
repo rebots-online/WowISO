@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wowiso"
+# Version+build scheme per CLAUDE.md: v<major>.<minor><patch>.<build>
+# build = last 5 digits of epoch-min. Bumped at release; see src/wowiso/version.py.
+version = "1.1.74918"
+description = "Custom Ubuntu 24.04 installer / live-USB / bare-metal-restore builder."
+readme = "README.md"
+license = { text = "Proprietary — Copyright (C) 2025-2026 Robin L. M. Cheung, MBA" }
+authors = [{ name = "Robin L. M. Cheung, MBA", email = "robin@robin.mba" }]
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.12",
+    "pydantic>=2.6",
+    "PyYAML>=6.0",
+    "rich>=13.7",
+    "textual>=0.60",
+]
+
+[project.optional-dependencies]
+picker = ["gum-wrapper"]            # optional gum/fzf fallback shim
+test = ["pytest>=8", "pytest-cov", "pytest-mock"]
+dev = ["ruff", "mypy", "build"]
+
+[project.scripts]
+wowiso = "wowiso.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[[tool.mypy.overrides]]
+module = ["wowiso.*"]
+disallow_untyped_defs = true

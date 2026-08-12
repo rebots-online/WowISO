@@ -1,0 +1,2 @@
+# Release artifacts (ISOs, USB images, netboot bundles) land here.
+# Tracked; large binaries via git-LFS (see .gitattributes).

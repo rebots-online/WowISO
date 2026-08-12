@@ -1,0 +1,29 @@
+%% First-boot cloud-init sequence (REPO mode) — installs clean, THEN re-applies config
+sequenceDiagram
+  autonumber
+  participant Boot as Target Boot
+  participant Sub as Subiquity
+  participant Guard as early-commands (guard)
+  participant FS as fs layout
+  participant CI as cloud-init (first boot)
+  participant Apt as apt/snap/flatpak
+  participant Ad as adapters (ollama, …)
+
+  Boot->>Sub: kernel cmdline: autoinstall ds=nocloud-net;s=/wowiso/seed/
+  Sub->>Guard: early-commands: compare live disk-id vs manifest.target_disk
+  alt mismatch
+    Guard-->>Sub: abort (no wipe)
+  else match
+    Guard-->>Sub: ok
+    Sub->>FS: apply storage.layout (btrfs|f2fs), no encryption
+    Sub->>Sub: install base system
+    Sub->>CI: reboot into installed system
+    CI->>Apt: add ppas/remotes, install packages.apt
+    CI->>Apt: snap install …
+    CI->>Apt: flatpak remote-add flathub; flatpak install …
+    CI->>CI: restore /opt, ~/.config, .bashrc (perms/uid)
+    CI->>Ad: for app in manifest.adapter_order:
+    Ad->>Ad: install()   %% clean from repo
+    Ad->>Ad: apply_config()  %% override.conf, OLLAMA_MODELS, shards as ollama:ollama
+    Ad-->>CI: verify()  %% e.g. ollama list shows models
+    CI-->>Boot: done — operator-ready

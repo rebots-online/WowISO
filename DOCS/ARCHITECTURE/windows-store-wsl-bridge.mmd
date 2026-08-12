@@ -1,0 +1,20 @@
+%% Windows Store / winget — WSL2 bridge. See windows-store-wsl-bridge.md.
+flowchart LR
+  subgraph WIN["Windows host (Store app)"]
+    GUI["wowiso GUI<br/>Tauri2 · Fluent · MSIX"]
+    BR["WslBridge sidecar<br/>wsl.exe -d Ubuntu-24.04 -- wowiso …"]
+    GUI --> BR
+  end
+  subgraph WSL["WSL2 · Ubuntu-24.04 distro (build host / source box)"]
+    CORE["wowiso core<br/>pipx install"]
+    DEPS["xorriso · mksquashfs · rsync<br/>grub-pc-bin · apt/snap/flatpak"]
+    ISO["dist/*.iso"]
+    CORE --> DEPS
+    CORE --> ISO
+  end
+  BR -- "hvsocket / 9p" --> CORE
+  ISO -- "surface onto /mnt/c or \\wsl$" --> OUT["Windows FS<br/>→ Rufus / Ventoy / dd"]
+  classDef store fill:#3b82f6,color:#fff,stroke:#1e3a8a
+  classDef wsl fill:#f97316,color:#fff,stroke:#9a3412
+  class GUI,BR store
+  class CORE,DEPS,ISO wsl

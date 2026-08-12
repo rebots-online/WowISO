@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WowISO</title>
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body data-platform="unknown">
+    <div id="app">
+      <aside class="sidebar">
+        <h1 class="brand">WowISO</h1>
+        <nav id="nav">
+          <button data-screen="capture">Capture</button>
+          <button data-screen="pick">Pick</button>
+          <button data-screen="build">Build</button>
+          <button data-screen="netboot">Netboot</button>
+          <button data-screen="wsl">WSL Setup</button>
+          <button data-screen="about">About</button>
+        </nav>
+        <div class="theme-toggle">
+          <label>Theme</label>
+          <select id="theme-mode">
+            <option value="system">System Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </aside>
+      <main id="main" class="main-pane"></main>
+      <footer class="statusbar">
+        <span id="status-text">ready</span>
+        <span id="version-tag" class="version">v…</span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

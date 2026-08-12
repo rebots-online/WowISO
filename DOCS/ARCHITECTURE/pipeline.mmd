@@ -1,0 +1,62 @@
+%% wowiso — build pipeline (capture → assemble → emit → boot)
+%% Render: mermaid CLI or any mmd viewer
+flowchart LR
+  subgraph SRC["Source box (current Ubuntu)"]
+    A1[apt-mark showmanual]:::cap
+    A2[snap list]:::cap
+    A3[flatpak list]:::cap
+    A4[rsync .config /opt .bashrc]:::cap
+    A5[adapter.capture per app]:::cap
+  end
+
+  PICKER["picker/ Textual tree-picker\n(rules.toml)"]:::ui
+
+  subgraph PAYLOAD["payload/<profile>/"]
+    M[(manifest.json)]:::store
+    B[(blobs/ sha256-deduped)]:::store
+    PKG[packages.apt\nsnaps.txt\nflatpaks.txt]:::store
+  end
+
+  A1 & A2 & A3 --> PKG --> M
+  A4 --> B --> M
+  A5 --> M
+  PICKER -.selects.-> A4
+  PICKER -.selects.-> A5
+
+  subgraph BUILD["build/"]
+    EX[extract base ISO\nxorriso -osirrox]:::build
+    SEED[inject nocloud seed\nuser-data + meta-data]:::build
+    PAYL[inject payload\n/wowiso/]:::build
+    MENU[edit grub.cfg + isolinux\nInstall/Live/Rescue]:::build
+    SQUASH[(LIVE) rebuild squashfs\nmksquashfs]:::build
+    REPACK[repack hybrid ISO\nxorriso -as mkisofs\nlabel preserved]:::build
+  end
+
+  M --> SEED
+  B & PKG --> PAYL
+  EX --> SEED --> PAYL --> MENU --> SQUASH --> REPACK
+
+  subgraph EMIT["Emit target"]
+    ISO["dist/*.iso\n→ YUMI/Ventoy/iVentoy/dd"]:::emit
+    USB["write_usb\ndd | GRUB2 multiboot"]:::emit
+    NET["netboot/\niPXE+HTTP | iVentoy"]:::emit
+  end
+  REPACK --> ISO
+  REPACK --> USB
+  REPACK --> NET
+
+  ISO & USB & NET --> TARGET["Target disk/box boot\n(autoinstall + cloud-init)"]:::boot
+  TARGET --> GUARD{disk-id match?}:::guard
+  GUARD -- no --> ABORT[abort install\nno wipe]:::guard
+  GUARD -- yes --> LAYOUT[fs layout: btrfs|f2fs]:::fs
+  LAYOUT --> INSTALL[install base + adapters]:::boot
+  INSTALL --> VERIFY[adapter.verify\nollama list …]:::boot
+
+  classDef cap fill:#d4e5ff,stroke:#2563eb,color:#0b1f3a
+  classDef ui fill:#fde7ff,stroke:#a21caf,color:#2a0a3a
+  classDef store fill:#fef3c7,stroke:#b45309,color:#2a160a
+  classDef build fill:#dcfce7,stroke:#15803d,color:#0a2a14
+  classDef emit fill:#e0e7ff,stroke:#4f46e5,color:#0a1033
+  classDef boot fill:#fee2e2,stroke:#b91c1c,color:#2a0a0a
+  classDef guard fill:#ffedd5,stroke:#c2410c,color:#2a140a
+  classDef fs fill:#ccfbf1,stroke:#0f766e,color:#04221f

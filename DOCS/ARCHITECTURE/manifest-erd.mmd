@@ -1,0 +1,43 @@
+%% Payload manifest ERD (mermaid flavor). See manifest-erd.puml for the richer version.
+erDiagram
+  MANIFEST ||--|| TARGETDISKGUARD : target_disk
+  MANIFEST ||--|| PACKAGES : packages
+  MANIFEST ||--|| IDENTITY : identity
+  MANIFEST ||--|{ APPCAPTURE : apps
+  MANIFEST {
+    string schema_version PK
+    string profile
+    int created_at_epoch_s
+    string mode "repo|live|image"
+    string filesystem "btrfs|f2fs"
+    list adapter_order
+    string prev_manifest_sha "Phase-2 sync chain"
+  }
+  PACKAGES ||--|{ SNAP : snaps
+  PACKAGES ||--|{ FLATPAK : flatpaks
+  PACKAGES {
+    list apt
+    list apt_sources
+    list flatpak_remotes
+  }
+  APPCAPTURE ||--|{ BLOBREF : config_blobs
+  APPCAPTURE {
+    string adapter PK "e.g. ollama"
+    dict data
+  }
+  BLOBREF {
+    string sha256 PK
+    int size_bytes
+    string store_path
+    int owner_uid
+    int owner_gid
+    string mode
+    string tag "config|big|shard|binary"
+  }
+  PROFILE ||--o{ BLOBREF : "selects via rules"
+  PROFILE {
+    string name PK
+    string rules_file "rules.toml"
+    list includes
+    list excludes
+  }

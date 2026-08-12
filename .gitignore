@@ -1,0 +1,62 @@
+# --- Release artifacts live in TRACKED dist/ (BUILD rule CC13/INC-16) ---
+# Large binaries staged via git-LFS, see .gitattributes. Never in /tmp or .tmp/.
+!dist/
+
+# Per-profile captured payloads are large & machine-specific — never commit.
+profiles/*/payload/
+profiles/*/payload.bak/
+*.iso
+*.squashfs
+*.img
+*.vmdk
+# ...but dist/ release artifacts ARE tracked (LFS-handled):
+!dist/**/*.iso
+!dist/**/*.img
+!dist/**/*.squashfs
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/                 # PyPI build dir (not our src/build)
+dist_pkg/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Tauri / Node (gui)
+gui/node_modules/
+gui/src-tauri/target/
+gui/dist/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+.cache/
+
+# Tooling artifacts (spec-panel: were missing)
+.codegraph/
+.remember/
+*.bak
+*.bak.*
+
+# Secrets — never
+*.key
+*.pem
+.env
+.env.*
+# MSIX / code-signing material (Store submission path)
+*.p12
+*.pfx
+*.cert
+*.snk
+appx.pfx
+
+# Temp working dirs used during ISO assembly
+.tmp/
+work/

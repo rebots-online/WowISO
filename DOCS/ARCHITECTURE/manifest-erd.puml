@@ -1,0 +1,96 @@
+@startuml wowiso manifest ERD
+!theme plain
+title Payload manifest — entity relationships (Pydantic models, manifest.py)
+
+hide circle
+skinparam linetype ortho
+
+entity "Manifest" as Manifest {
+  * schema_version : str
+  --
+  profile : str
+  created_at_epoch_s : int
+  source_host : str
+  ubuntu_release : str
+  mode : repo|live|image
+  filesystem : btrfs|f2fs
+  target_disk_id : FK > TargetDiskGuard
+  packages_id : FK > Packages
+  identity_id : FK > Identity
+  adapter_order : list[str]
+  prev_manifest_sha : str   '' Phase-2 sync chain ''
+}
+
+entity "TargetDiskGuard" as Guard {
+  * by_id : str             '' /dev/disk/by-id/... ''
+  model : str
+  serial : str
+  size_bytes : int
+}
+
+entity "Packages" as Packages {
+  apt : list[str]
+  apt_sources : list[str]   '' ppas, deb lines ''
+  snaps : list[Snap]
+  flatpaks : list[Flatpak]
+  flatpak_remotes : list[str]
+}
+
+entity "Snap" as Snap {
+  name : str
+  channel : str
+  classic : bool
+}
+
+entity "Flatpak" as Flatpak {
+  ref : str
+  remote : str
+}
+
+entity "Identity" as Identity {
+  hostname : str
+  username : str
+  uid : int
+  realname : str
+  ssh_pubkeys : list[str]
+}
+
+entity "AppCapture" as AppCapture {
+  * adapter : str           '' e.g. ollama ''
+  data : dict               '' adapter-specific ''
+  config_blobs : list[FK] > BlobRef
+}
+
+entity "BlobRef" as BlobRef {
+  * sha256 : str
+  size_bytes : int
+  store_path : str          '' payload/.../blobs/ ''
+  owner_uid : int
+  owner_gid : int
+  mode : str
+  tag : config|big|shard|binary
+}
+
+entity "Profile" as Profile {
+  * name : str
+  rules_file : rules.toml
+  includes : list[glob]
+  excludes : list[glob]
+}
+
+Manifest }--|| Guard
+Manifest }--|| Packages
+Manifest }--|| Identity
+Manifest }--|{ AppCapture
+Packages }--|{ Snap
+Packages }--|{ Flatpak
+AppCapture }--|{ BlobRef
+Profile ||--o{ BlobRef : "selects via rules"
+
+note bottom of BlobRef
+  Content-addressed + deduped across profiles.
+  Enables Phase-2 P2P sync/ differential
+  replication by hash range.
+end note
+
+@enduml

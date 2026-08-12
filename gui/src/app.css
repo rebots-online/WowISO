@@ -1,0 +1,134 @@
+/*
+  wowiso GUI — platform-adaptive + Light/Dark/System-Auto.
+  Platform tokens are set on <body data-platform="…"> by main.ts:
+    - windows → Fluent (accent blue, reedge corners, Segoe)
+    - linux   → GNOME/Adwaita (neutral, Adwaita-style headerbar)
+    - darwin  → macOS (traffic-light spacing, SF-like stack)
+  The 8-theme CLAUDE.md palette is an M7.1 (Stitch) concern; this file ships the
+  structural theme system (variables + auto) that those themes will populate.
+*/
+:root {
+  --accent: #1b6ef3;
+  --bg: #ffffff;
+  --bg-alt: #f6f7f9;
+  --fg: #1b1b1b;
+  --fg-muted: #5a5a5a;
+  --border: #d8dadd;
+  --statusbar-bg: #ececed;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root.auto {
+    --bg: #1d1d1f;
+    --bg-alt: #26262a;
+    --fg: #f2f2f2;
+    --fg-muted: #b0b0b4;
+    --border: #38383d;
+    --statusbar-bg: #161617;
+    color-scheme: dark;
+  }
+}
+:root.dark {
+  --bg: #1d1d1f;
+  --bg-alt: #26262a;
+  --fg: #f2f2f2;
+  --fg-muted: #b0b0b4;
+  --border: #38383d;
+  --statusbar-bg: #161617;
+  color-scheme: dark;
+}
+:root.light { color-scheme: light; }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: system-ui, "Segoe UI", "Cantarell", "Inter", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+#app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 1fr auto;
+  height: 100vh;
+}
+.sidebar {
+  grid-row: 1 / span 2;
+  background: var(--bg-alt);
+  border-right: 1px solid var(--border);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.brand { font-size: 15px; margin: 4px 0 14px; font-weight: 600; }
+#nav { display: flex; flex-direction: column; gap: 2px; }
+#nav button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--fg);
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#nav button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+#nav button.active { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.theme-toggle { margin-top: auto; display: grid; gap: 4px; font-size: 12px; color: var(--fg-muted); }
+.theme-toggle select {
+  width: 100%; padding: 4px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--fg);
+}
+.main-pane {
+  padding: 22px 26px;
+  overflow: auto;
+}
+.main-pane h2 { margin-top: 0; }
+.main-pane section { display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+.field { display: grid; gap: 4px; font-size: 13px; color: var(--fg-muted); }
+.field input, .field select {
+  padding: 7px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--fg); font-size: 14px;
+}
+button.primary {
+  align-self: start;
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button.primary:disabled { opacity: 0.55; cursor: default; }
+pre.log {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+.statusbar {
+  grid-column: 2;
+  background: var(--statusbar-bg);
+  border-top: 1px solid var(--border);
+  padding: 5px 14px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.statusbar .version { font-variant-numeric: tabular-nums; }
+
+/* Platform token nudges (applied via data-platform on <body>). */
+body[data-platform="windows"] { --accent: #0078d4; font-family: "Segoe UI", system-ui; }
+body[data-platform="windows"] #nav button,
+body[data-platform="windows"] button.primary { border-radius: 6px; }
+body[data-platform="linux"]   { --accent: #3584e4; font-family: "Cantarell", system-ui; }
+body[data-platform="linux"]   .sidebar { border-right: none; box-shadow: inset -1px 0 var(--border); }
+body[data-platform="darwin"]  { --accent: #0a84ff; font-family: -apple-system, system-ui; }

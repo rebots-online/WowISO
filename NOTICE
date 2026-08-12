@@ -1,0 +1,10 @@
+Copyright (C) 2025–2026 Robin L. M. Cheung, MBA. All rights reserved.
+
+wowiso — custom Ubuntu 24.04 installer / live-USB / bare-metal-restore builder.
+
+Reuses design patterns (GRUB2 dual-arch multiboot, GPT/ESP/BIOS_GRUB layout,
+F2FS-first filesystem selection) inspired by WowUSB-DS9 (GPL-3.0),
+https://github.com/rebots-online/wowusb — see NOTICES for full attribution.
+
+Ubuntu is a trademark of Canonical Ltd. This project is not affiliated with
+or endorsed by Canonical.

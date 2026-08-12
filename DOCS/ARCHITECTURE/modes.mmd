@@ -1,0 +1,20 @@
+%% Three build modes and what each emits to first-boot
+flowchart TB
+  subgraph CAP["Shared capture (payload + manifest)"]
+    M[(manifest.json)]
+  end
+
+  MODE{build mode}
+
+  CAP --> MODE
+  MODE -->|repo| R["REPO\nautoinstall + cloud-init"]
+  MODE -->|live| L["LIVE\nremaster running box into squashfs"]
+  MODE -->|image| I["IMAGE\nbare-metal tree restore, no pkg managers"]
+
+  R --> R1["first-boot: apt/snap/flatpak install\n+ adapters install()+apply_config()"]
+  L --> L1["boot directly into snapshot desktop\n(rescue/live work)"]
+  I --> I1["late-commands write captured tree\nto target root fs"]
+
+  R1 --> OUT["emitted ISO/USB/Netboot\n(one snapshot each)"]
+  L1 --> OUT
+  I1 --> OUT

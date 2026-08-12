@@ -1,0 +1,72 @@
+@startuml wowiso pipeline
+!theme plain
+title wowiso — capture / build / emit pipeline
+
+skinparam rectangle {BackgroundColor #F8FAFC BorderColor #334155}
+skinparam package  {BackgroundColor #EEF2FF BorderColor #4F46E5}
+skinparam database {BackgroundColor #FEF3C7 BorderColor #B45309}
+
+package "Source box (current Ubuntu)" {
+  rectangle "apt-mark showmanual\nsnap list\nflatpak list" as Pkgs
+  rectangle "rsync .config /opt .bashrc\n(per-app adapter capture)" as Tree
+  rectangle "picker/ Textual tree-picker\n(rules.toml)" as Picker
+}
+
+database "manifest.json" as M
+database "payload/<profile>/blobs/\n(sha256 deduped)" as Blobs
+database "packages.apt / snaps.txt\nflatpaks.txt" as PLists
+
+Pkgs --> PLists --> M
+Tree --> Blobs --> M
+Picker .. Tree : selects
+Picker .. Pkgs : selects
+
+package "build/" {
+  rectangle "extract base ISO\n(xorriso -osirrox)" as Extract
+  rectangle "inject nocloud seed\nuser-data+meta-data" as Seed
+  rectangle "inject payload\n(/wowiso/)" as Pay
+  rectangle "edit grub.cfg + isolinux\n(Install/Live/Rescue)" as Menu
+  rectangle "(LIVE) mksquashfs" as Sq
+  rectangle "repack hybrid ISO\n(label preserved)" as Repack
+}
+M --> Seed
+Blobs --> Pay
+PLists --> Pay
+Extract -> Seed -> Pay -> Menu -> Sq -> Repack
+
+package "Emit target" {
+  rectangle "dist/*.iso\nYUMI/Ventoy/iVentoy/dd" as ISO
+  rectangle "write_usb\ndd | GRUB2 multiboot" as USB
+  rectangle "netboot/  iPXE+HTTP | iVentoy" as Net
+}
+Repack --> ISO
+Repack --> USB
+Repack --> Net
+
+rectangle "Target boot\nautoinstall + cloud-init" as Target
+rectangle "disk-id guard\n(abort if mismatch)" as Guard
+rectangle "fs layout btrfs|f2fs" as Fs
+rectangle "adapters install()+apply_config()\nverify()" as Adapters
+
+ISO --> Target
+USB --> Target
+Net --> Target
+Target --> Guard
+Guard --> Fs : match
+Fs --> Adapters
+
+note right of Adapters
+  ollama adapter (reference):
+  install clean from repo, then
+  write override.conf, set OLLAMA_MODELS,
+  restore shards as ollama:ollama,
+  NEVER copy stale binaries.
+end note
+
+note right of Blobs
+  Phase-2 seam: content-addressed
+  blobs => P2P sync/ can replicate
+  by hash range.
+end note
+
+@enduml

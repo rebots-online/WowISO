@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "WowISO",
+  "version": "1.1.74918",
+  "identifier": "mba.robin.wowiso",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "wowiso",
+        "width": 1024,
+        "height": 700,
+        "minWidth": 720,
+        "minHeight": 540,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "copyright": "Copyright (C) 2025–2026 Robin L. M. Cheung, MBA. All rights reserved.",
+    "category": "DeveloperTool",
+    "shortDescription": "Custom Ubuntu 24.04 installer / live-USB / bare-metal-restore builder.",
+    "longDescription": "Turn an Ubuntu box into portable, bootable artifacts (autoinstall ISO / live USB / bare-metal restore). Windows build hosts the Linux-native core in WSL2.",
+    "windows": {
+      "wix": {
+        "language": "en-US"
+      }
+    }
+  }
+}
