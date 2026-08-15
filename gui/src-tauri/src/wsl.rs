@@ -15,10 +15,12 @@ pub const WSL_DISTRO: &str = "Ubuntu-24.04";
 /// Build a `wowiso` invocation appropriate to the platform.
 ///
 /// - Windows: `wsl.exe -d Ubuntu-24.04 -- wowiso <args…>`
-/// - other:   `wowiso <args…>` (core runs locally)
-pub fn build_command(args: &[String]) -> Command {
+/// - other:   the bundled core (`core-dist/bin/wowiso`, a Tauri resource) when
+///            present, else `wowiso` from PATH (dev fallback)
+pub fn build_command(args: &[String], core_dir: Option<&std::path::Path>) -> Command {
     #[cfg(target_os = "windows")]
     {
+        let _ = core_dir; // the Linux core bundle is not used on Windows
         let mut c = Command::new("wsl.exe");
         c.args(["-d", WSL_DISTRO, "--", "wowiso"]);
         c.args(args);
@@ -26,7 +28,10 @@ pub fn build_command(args: &[String]) -> Command {
     }
     #[cfg(not(target_os = "windows"))]
     {
-        let mut c = Command::new("wowiso");
+        let mut c = match core_dir.map(|d| d.join("bin").join("wowiso")) {
+            Some(p) if p.is_file() => Command::new(p),
+            _ => Command::new("wowiso"),
+        };
         c.args(args);
         c
     }

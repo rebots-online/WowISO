@@ -380,6 +380,12 @@ def load_rules(profile: str) -> Rules             # rules.py; maps rules.toml <-
 > **`gui/`** (Tauri2) is out-of-process: it shells to the `cli.py` commands above.
 > Its contract with the core is the CLI's stdout / exit-codes, not a Python import,
 > so GUI work is fully decoupled from Python-core work and runs in parallel with it.
+> Core location per platform: **Linux installers bundle the core itself** as a
+> Tauri resource (`gui/src-tauri/core-dist/`, built by `scripts/bundle-core.sh`
+> pinned to `/usr/bin/python3` 3.12 so wheel tags match target machines;
+> resolved via `resource_dir()`, PATH fallback in dev) — the artifacts are
+> self-contained, no pipx install required. **Windows hosts the core in WSL2**
+> per Phase 3.5 (the Linux bundle is not used there).
 
 ## 4. Data flow
 

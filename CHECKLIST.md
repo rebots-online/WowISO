@@ -237,8 +237,16 @@
 - [ ] **P3.1 More adapters** — docker, tailscale, … (same Protocol).
 - [ ] **P3.2 Mobile GUI** — Tauri2 mobile (Android primary, iOS if viable).
 - [ ] **P3.3 `wowiso refresh`** — one-command re-capture + rebuild scheduler.
-- [ ] **P3.4 Packaging** — `.deb`/`.rpm`/AppImage + `.exe`/`.msi` + macOS,
+- [/] **P3.4 Packaging** — `.deb`/`.rpm`/AppImage + `.exe`/`.msi` + macOS,
   filenames carrying `v<ver>.<build>`; PWA-installable surfaces where applicable.
+  - ✅ (2026-08-15) Linux `.deb`/`.rpm`/`.AppImage` built via `cargo tauri build`
+    with the Python core **bundled as a Tauri resource** — artifacts are
+    self-contained (no pipx). Decision (recorded per BUILD rules): `scripts/
+    bundle-core.sh` pins `/usr/bin/python3` 3.12 — never the dev venv (conda
+    3.10) or `$PATH` python3 (3.14); wheel tags must match the target box.
+    Rust resolves it via `resource_dir()` with PATH fallback in dev.
+  - [ ] Remaining: Windows `.exe`/`.msi` (core hosted in WSL2 per P3.5 — the
+    Linux resource bundle is not used there), macOS, mobile.
 
 ---
 
@@ -321,9 +329,10 @@
   wire BlobStore into the adapter capture path, or scope README to
   config-restore-only. **A1** §3.9 status-sync (verify.py/picker absent;
   `edit_boot_menu(manifest)` + `rebuild_squashfs -> None` signature drifts).
-  **A2** extend `update-version.sh` to patch pyproject/Cargo/tauri.conf.
-  **A3** `git rm` stale `dist/wowiso-1.1.74918-*`. **C4** scope boot-menu
-  autoinstall suffix to install entries. **T1** guard property/fuzz tests.
+  ~~A2~~ (moot — `update-version.sh` already stamps pyproject/package.json/
+  tauri.conf/Cargo.toml). **A3** `git rm` stale `dist/wowiso-1.1.74918-*`.
+  **C4** scope boot-menu autoinstall suffix to install entries. **T1** guard
+  property/fuzz tests.
 
 ---
 

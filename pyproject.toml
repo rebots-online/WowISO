@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "wowiso"
 # Version+build scheme per CLAUDE.md: v<major>.<minor><patch>.<build>
 # build = last 5 digits of epoch-min. Bumped at release; see src/wowiso/version.py.
-version = "1.2.74933"
+version = "1.3.80595"
 description = "Custom Ubuntu 24.04 installer / live-USB / bare-metal-restore builder."
 readme = "README.md"
 license = { text = "Proprietary — Copyright (C) 2025-2026 Robin L. M. Cheung, MBA" }

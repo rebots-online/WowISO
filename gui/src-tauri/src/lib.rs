@@ -6,14 +6,25 @@
 mod wsl;
 
 use std::io::BufRead;
+use std::path::PathBuf;
 use std::process::Stdio;
 
 use tauri::Emitter;
 
+/// The bundled Python core (`core-dist/`, shipped as a Tauri resource), when
+/// present. Resolved via the resource dir so it works identically in the deb,
+/// rpm, and AppImage layouts; `None` in dev (falls back to `wowiso` on PATH).
+fn bundled_core_dir(app: &tauri::AppHandle) -> Option<PathBuf> {
+    use tauri::Manager;
+    let core = app.path().resource_dir().ok()?.join("core-dist");
+    core.join("bin").join("wowiso").is_file().then_some(core)
+}
+
 /// Stream a `wowiso` command's combined output as `progress` events.
 /// Returns the process exit code.
 fn run_streaming(app: tauri::AppHandle, args: Vec<String>) -> Result<i32, String> {
-    let mut cmd = wsl::build_command(&args);
+    let core = bundled_core_dir(&app);
+    let mut cmd = wsl::build_command(&args, core.as_deref());
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
     let mut child = cmd.spawn().map_err(|e| format!("spawn wowiso: {e}"))?;
 
@@ -39,9 +50,9 @@ fn run_streaming(app: tauri::AppHandle, args: Vec<String>) -> Result<i32, String
 }
 
 #[tauri::command]
-fn get_version() -> String {
-    // Honors version.py::current() by asking the core itself.
-    let out = wsl::build_command(&["version".into()])
+fn get_version(app: tauri::AppHandle) -> String {
+    // Honors version.py::current() by asking the core itself (bundled if present).
+    let out = wsl::build_command(&["version".into()], bundled_core_dir(&app).as_deref())
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .output();
@@ -89,7 +100,7 @@ fn wsl_ensure_ready() -> Result<String, String> {
             ));
         }
         // Is the core installed inside the distro?
-        let probe = wsl::build_command(&["--version".into()])
+        let probe = wsl::build_command(&["--version".into()], None)
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
             .output();
