@@ -8,18 +8,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..manifest import AppCapture, Packages
+from ..manifest import AppCapture
 from .blobs import BlobStore
 from .packages import capture_packages
 from .tree import Rules, capture_tree
 
-if TYPE_CHECKING:  # avoid runtime import cycle for the type hint
+if TYPE_CHECKING:  # annotation-only imports keep the runtime import graph lazy
+    from pathlib import Path
+
     from ..adapters.base import Adapter
+    from ..manifest import Manifest
 
 Host = object | None
 
 
-def capture_app(adapter: "Adapter", host: Host = None) -> AppCapture:
+def capture_app(adapter: Adapter, host: Host = None) -> AppCapture:
     """Capture one app via its adapter (host=None ⇒ local box)."""
     return adapter.capture(host)
 
@@ -27,11 +30,11 @@ def capture_app(adapter: "Adapter", host: Host = None) -> AppCapture:
 def capture_to_profile(
     profile: str,
     target_disk_id: str | None = None,
-    paths: "list[Path] | None" = None,
+    paths: list[Path] | None = None,
     mode: str = "repo",
     filesystem: str = "btrfs",
     host: Host = None,
-) -> "Manifest":  # type: ignore[name-defined]
+) -> Manifest:
     """Full capture → ``profiles/<profile>/manifest.json`` + ``payload/<profile>/``.
 
     Assembles identity from the local box, captures packages + the default tree
@@ -115,10 +118,10 @@ def capture_to_profile(
 
 
 __all__ = [
-    "Host",
     "BlobStore",
+    "Host",
     "Rules",
+    "capture_app",
     "capture_packages",
     "capture_tree",
-    "capture_app",
 ]

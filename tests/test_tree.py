@@ -31,7 +31,7 @@ def test_include_exclude_and_big_tag(tmp_path: Path) -> None:
     # keep.txt + cfg.toml tagged config
     assert any(r.tag == "config" and r.size_bytes == len("keep") for r in refs)
     assert any(r.size_bytes == len("a=1") for r in refs)
-    del tags  # noqa
+    del tags
 
 
 def test_single_file_root(tmp_path: Path) -> None:

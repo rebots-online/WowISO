@@ -6,13 +6,12 @@ import os
 import subprocess
 from pathlib import Path
 
+from tests.test_manifest import _base
 from wowiso.adapters import ADAPTERS, GenericAdapter, OllamaAdapter, get
 from wowiso.adapters.base import RestoreContext
 from wowiso.adapters.firstboot import render_firstboot_script
 from wowiso.capture.blobs import BlobStore
 from wowiso.manifest import AppCapture, Manifest
-
-from tests.test_manifest import _base
 
 
 def test_registry_unknown_falls_back_to_generic() -> None:
@@ -76,7 +75,8 @@ def test_firstboot_script_logs_ordered_calls(monkeypatch) -> None:  # type: igno
     p.write_text(script)
     os.chmod(p, 0o755)
     env = dict(os.environ, WOWISO_DRY_RUN="1")
-    proc = subprocess.run(["bash", str(p)], capture_output=True, text=True, env=env)
+    proc = subprocess.run(["bash", str(p)], capture_output=True, text=True, env=env,
+                          check=False)
     out = proc.stdout
     assert proc.returncode == 0
     # ordered: ollama install/apply/verify before generic

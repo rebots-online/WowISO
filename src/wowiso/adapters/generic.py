@@ -10,7 +10,7 @@ from __future__ import annotations
 import shutil
 
 from ..manifest import AppCapture
-from .base import Adapter, RestoreContext, VerifyResult
+from .base import RestoreContext, VerifyResult
 
 
 class GenericAdapter:
@@ -22,7 +22,7 @@ class GenericAdapter:
         # Tree capture already covers ~/.config/<app>; nothing bespoke to add.
         return AppCapture(adapter=self.name, data={}, config_blobs=[])
 
-    def install(self, ctx: RestoreContext) -> None:  # noqa: ARG002
+    def install(self, ctx: RestoreContext) -> None:
         # No package to install for the generic case.
         return None
 

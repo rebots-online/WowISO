@@ -91,7 +91,7 @@ class Manifest(BaseModel):
     prev_manifest_sha: str | None = None  # Phase-2 sync chain
 
     @classmethod
-    def load(cls, path: Path) -> "Manifest":
+    def load(cls, path: Path) -> Manifest:
         return cls.model_validate_json(path.read_text(encoding="utf-8"))
 
     def dump(self, path: Path) -> None:

@@ -10,7 +10,6 @@ import secrets
 import shlex
 import string
 import subprocess
-from pathlib import Path
 
 import yaml
 
@@ -18,6 +17,7 @@ from ..adapters.firstboot import render_firstboot_script
 from ..fs.layout import build_layout
 from ..guard import render_early_commands
 from ..manifest import Manifest
+from .workdir import WorkDir
 
 
 def _rand_password() -> str:
@@ -84,14 +84,12 @@ def render_user_data(manifest: Manifest) -> tuple[str, str]:
     return yaml_text, creds
 
 
-def inject_seed(workdir, manifest: Manifest) -> str:  # type: ignore[no-untyped-def]
+def inject_seed(workdir: WorkDir, manifest: Manifest) -> str:
     """Write nocloud seed + restore script + manifest copy into ``workdir``.
 
     Returns the credentials text (caller writes it beside the emitted ISO).
     """
-    from .workdir import WorkDir  # local import to avoid cycle in type checkers
-    wd: WorkDir = workdir
-    seed_dir = wd.root / "wowiso" / "seed"
+    seed_dir = workdir.root / "wowiso" / "seed"
     seed_dir.mkdir(parents=True, exist_ok=True)
 
     yaml_text, creds = render_user_data(manifest)
@@ -103,7 +101,7 @@ def inject_seed(workdir, manifest: Manifest) -> str:  # type: ignore[no-untyped-
     )
 
     # first-boot restore script + manifest copy alongside the payload
-    wowiso = wd.root / "wowiso"
+    wowiso = workdir.root / "wowiso"
     wowiso.mkdir(parents=True, exist_ok=True)
     (wowiso / "wowiso-restore").write_text(
         render_firstboot_script(manifest), encoding="utf-8")

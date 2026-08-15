@@ -17,12 +17,11 @@ from __future__ import annotations
 import os
 import re
 import subprocess
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Callable, Sequence
 
 from ..manifest import AppCapture, BlobRef
-from ..capture.blobs import BlobStore
-from .base import Adapter, RestoreContext, VerifyResult
+from .base import RestoreContext, VerifyResult
 
 _DEFAULT_SHARD_DIR = Path("/usr/share/ollama/.ollama/models")
 _OVERRIDE_DIR = Path("/etc/systemd/system/ollama.service.d")
@@ -61,7 +60,7 @@ class OllamaAdapter:
         )
 
     # -- install (first boot) -------------------------------------------------
-    def install(self, ctx: RestoreContext) -> None:  # noqa: ARG002
+    def install(self, ctx: RestoreContext) -> None:
         # Clean install from the official script — never a copied binary.
         self._run(["bash", "-c",
                    "curl -fsSL https://ollama.com/install.sh | sh"])
@@ -130,7 +129,7 @@ def _capture_shards(
     return []  # full shard→blob ingestion happens in the capture CLI (M2.4)
 
 
-def _find_app(ctx: RestoreContext, name: str):
+def _find_app(ctx: RestoreContext, name: str) -> AppCapture | None:
     for app in ctx.manifest.apps:
         if app.adapter == name:
             return app

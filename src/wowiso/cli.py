@@ -46,7 +46,7 @@ def _unimplemented(milestone: str) -> None:
 
 @app.callback()
 def main(
-    version: bool | None = typer.Option(  # noqa: ARG001 - typer reads the annotation
+    version: bool | None = typer.Option(
         None, "--version", callback=_version_callback, is_eager=True,
         help="Show version+build and exit.",
     ),

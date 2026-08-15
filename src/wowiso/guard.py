@@ -8,6 +8,7 @@ operator can copy a by-id into a profile.
 """
 from __future__ import annotations
 
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -67,7 +68,9 @@ def render_early_commands(guard: TargetDiskGuard) -> str:
     """Bash for autoinstall ``early-commands``: abort unless the target disk matches."""
     return (
         "set -eu\n"
-        f"WOWISO_EXPECTED_BY_ID={guard.by_id!r}\n"
+        # shlex.quote, NOT repr: a repr that switches to double quotes would let
+        # bash command-substitute a hostile by_id inside `bash -c` (root context).
+        f"WOWISO_EXPECTED_BY_ID={shlex.quote(guard.by_id)}\n"
         f"WOWISO_EXPECTED_SIZE={guard.size_bytes}\n"
         'if [ ! -e "${WOWISO_EXPECTED_BY_ID}" ]; then\n'
         '  echo "wowiso guard: ABORT — expected disk ${WOWISO_EXPECTED_BY_ID} '

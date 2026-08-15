@@ -44,11 +44,39 @@ def test_rendered_script_proceeds_on_match(tmp_path) -> None:  # type: ignore[no
     os.chmod(shim / "lsblk", 0o755)
     env = dict(os.environ, PATH=f"{shim}:{os.environ['PATH']}")
     # readlink is a coreutils binary; resolve the symlink for the size check
-    proc = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env)
+    proc = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                          env=env, check=False)
     assert proc.returncode == 0, proc.stderr
     assert "OK" in proc.stdout
     # sanity: the quoted id shell-decodes back to the link path
     assert shlex.quote(guard.by_id) in script
+
+
+def test_rendered_script_quotes_hostile_by_id(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """S1 regression: a by_id with shell metacharacters must never be bash-live.
+
+    Python ``repr`` switches to double quotes when the string contains a single
+    quote, and ``$(...)`` is live inside bash double quotes — so a crafted
+    manifest by_id could execute as root in early-commands. ``shlex.quote``
+    keeps it single-quoted; executing the script must abort (exit 1) with the
+    payload inert.
+    """
+    import subprocess
+
+    hostile = "a'$(touch /tmp/wowiso-pwn)b"
+    g = TargetDiskGuard(by_id=hostile, model="x", serial="y", size_bytes=1)
+    script = render_early_commands(g)
+    # the assignment is the shlex (single-quoted) form, never repr's double form
+    assert f"WOWISO_EXPECTED_BY_ID={shlex.quote(hostile)}" in script
+    assert f'WOWISO_EXPECTED_BY_ID="{hostile}"' not in script
+    # executing the guard must abort cleanly (exit 1) with the payload inert
+    marker = tmp_path / "pwned"
+    proc = subprocess.run(
+        ["bash", "-c", script.replace("/tmp/wowiso-pwn", str(marker))],
+        capture_output=True, text=True, check=False,
+    )
+    assert proc.returncode == 1, proc.stderr
+    assert not marker.exists(), "command substitution fired — quoting regressed"
 
 
 def test_list_candidate_disks_returns_list_safely() -> None:

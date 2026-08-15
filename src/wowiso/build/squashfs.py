@@ -8,11 +8,9 @@ from pathlib import Path
 from .workdir import WorkDir
 
 
-def rebuild_squashfs(workdir, src_root: Path) -> Path:  # type: ignore[no-untyped-def]
+def rebuild_squashfs(workdir: WorkDir, src_root: Path) -> Path:
     """Re-master the live squashfs from a captured root tree (LIVE mode only)."""
-    from .workdir import WorkDir
-    wd: WorkDir = workdir
-    dest = wd.root / "casper/filesystem.squashfs"
+    dest = workdir.root / "casper/filesystem.squashfs"
     dest.parent.mkdir(parents=True, exist_ok=True)
     # mksquashfs <src> <dest> -noappend -comp xz
     subprocess.run(

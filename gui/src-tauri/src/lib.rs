@@ -141,7 +141,8 @@ fn start_build(
         app,
         vec![
             "build".into(), mode, "--profile".into(), profile,
-            "--base".into(), base, "--emit".into(), emit,
+            // the core may run inside WSL2 — hand it a path it can resolve (C2)
+            "--base".into(), wsl::to_wsl_path(&base), "--emit".into(), emit,
         ],
     )
 }
@@ -150,7 +151,10 @@ fn start_build(
 fn start_netboot(app: tauri::AppHandle, profile: String, http_root: String) -> Result<i32, String> {
     run_streaming(
         app,
-        vec!["netboot".into(), "--profile".into(), profile, "--http-root".into(), http_root],
+        vec![
+            "netboot".into(), "--profile".into(), profile,
+            "--http-root".into(), wsl::to_wsl_path(&http_root),
+        ],
     )
 }
 

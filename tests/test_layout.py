@@ -2,10 +2,9 @@
 """M4.2 — build_layout branches + warn_f2fs."""
 from __future__ import annotations
 
-from wowiso.fs.layout import build_layout, warn_f2fs
-from wowiso.manifest import Manifest, TargetDiskGuard
-
 from tests.test_manifest import _base  # reuse the manifest fixture
+from wowiso.fs.layout import build_layout, warn_f2fs
+from wowiso.manifest import Manifest
 
 
 def _manifest(fs: str) -> Manifest:

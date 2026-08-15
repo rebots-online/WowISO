@@ -55,10 +55,10 @@ def warn_f2fs(manifest: Manifest) -> list[str]:
     if manifest.filesystem != "f2fs":
         return []
     return [
-        "f2fs root: some block-level backup tools (fsarchiver/partclone) have "
-        "limited f2fs support — IMAGE-mode captures may fall back to file-level.",
-        "f2fs root: verify your bootloader/firmware combo; /boot is ext4 here to "
-        "keep GRUB robust regardless of root fstype.",
-        "f2fs root: TRIM/discard behavior differs from ext4; confirm discard is "
-        "enabled post-install on SSD/NVMe targets.",
+        ("f2fs root: some block-level backup tools (fsarchiver/partclone) have "
+         "limited f2fs support — IMAGE-mode captures may fall back to file-level."),
+        ("f2fs root: verify your bootloader/firmware combo; /boot is ext4 here to "
+         "keep GRUB robust regardless of root fstype."),
+        ("f2fs root: TRIM/discard behavior differs from ext4; confirm discard is "
+         "enabled post-install on SSD/NVMe targets."),
     ]

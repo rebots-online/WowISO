@@ -14,10 +14,10 @@ ADAPTERS.setdefault("ollama", OllamaAdapter())
 __all__ = [
     "ADAPTERS",
     "Adapter",
-    "RestoreContext",
-    "VerifyResult",
     "GenericAdapter",
     "OllamaAdapter",
-    "render_firstboot_script",
+    "RestoreContext",
+    "VerifyResult",
     "get",
+    "render_firstboot_script",
 ]

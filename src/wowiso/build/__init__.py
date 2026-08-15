@@ -7,8 +7,8 @@ from .workdir import WorkDir
 
 __all__ = [
     "WorkDir",
-    "build_repo",
-    "build_live",
     "build_image",
+    "build_live",
+    "build_repo",
     "out_filename",
 ]

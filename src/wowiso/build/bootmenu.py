@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .workdir import WorkDir
+
 _CMDLINE_SUFFIX = " autoinstall ds=nocloud-net;s=/wowiso/seed/"
 _MARKER = "wowiso-autoinstall-patched"
 
@@ -24,8 +26,7 @@ def _patch(path: Path) -> None:
     out_lines = []
     for line in text.splitlines():
         stripped = line.lstrip()
-        if (stripped.startswith("linux") or stripped.startswith("append")) \
-                and "autoinstall" not in line:
+        if stripped.startswith(("linux", "append")) and "autoinstall" not in line:
             out_lines.append(line.rstrip() + _CMDLINE_SUFFIX)
         else:
             out_lines.append(line)
@@ -33,9 +34,7 @@ def _patch(path: Path) -> None:
     path.write_text("\n".join(out_lines) + "\n", encoding="utf-8")
 
 
-def edit_boot_menu(workdir) -> None:  # type: ignore[no-untyped-def]
-    from .workdir import WorkDir
-    wd: WorkDir = workdir
-    _patch(wd.root / "boot/grub/grub.cfg")
-    _patch(wd.root / "boot/grub/loopback.cfg")
-    _patch(wd.root / "isolinux/txt.cfg")
+def edit_boot_menu(workdir: WorkDir) -> None:
+    _patch(workdir.root / "boot/grub/grub.cfg")
+    _patch(workdir.root / "boot/grub/loopback.cfg")
+    _patch(workdir.root / "isolinux/txt.cfg")

@@ -14,8 +14,8 @@ from typing import Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
-from ..manifest import AppCapture, Manifest
 from ..capture.blobs import BlobStore
+from ..manifest import AppCapture, Manifest
 
 
 @dataclass

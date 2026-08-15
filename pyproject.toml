@@ -23,7 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 picker = ["gum-wrapper"]            # optional gum/fzf fallback shim
 test = ["pytest>=8", "pytest-cov", "pytest-mock"]
-dev = ["ruff", "mypy", "build"]
+dev = ["ruff", "mypy", "build", "types-PyYAML"]
 
 [project.scripts]
 wowiso = "wowiso.cli:app"

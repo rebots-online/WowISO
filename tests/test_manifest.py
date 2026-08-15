@@ -21,26 +21,28 @@ from wowiso.manifest import (
 
 
 def _base() -> dict:
-    return dict(
-        schema_version=MANIFEST_SCHEMA_VERSION,
-        profile="dev",
-        created_at_epoch_s=1_700_000_000,
-        source_host="box",
-        ubuntu_release="24.04",
-        mode="repo",
-        target_disk=TargetDiskGuard(
+    return {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "profile": "dev",
+        "created_at_epoch_s": 1_700_000_000,
+        "source_host": "box",
+        "ubuntu_release": "24.04",
+        "mode": "repo",
+        "target_disk": TargetDiskGuard(
             by_id="/dev/disk/by-id/virtio-disk", model="V", serial="S", size_bytes=1
         ),
-        filesystem="btrfs",
-        packages=Packages(apt=["git"], apt_sources=[], snaps=[Snap(name="go")],
-                          flatpaks=[Flatpak(ref="com.example.App/x86_64/stable", remote="flathub")],
-                          flatpak_remotes=["flathub"]),
-        apps=[AppCapture(adapter="ollama", data={"models": ["llama3"]}, config_blobs=[])],
-        blobs=[BlobRef(sha256="ab" * 32, size_bytes=10, store_path="x", owner_uid=0,
-                       owner_gid=0, mode="0644", tag="config")],
-        identity=Identity(hostname="h", username="u", uid=1000, realname="U", ssh_pubkeys=[]),
-        adapter_order=["ollama"],
-    )
+        "filesystem": "btrfs",
+        "packages": Packages(apt=["git"], apt_sources=[], snaps=[Snap(name="go")],
+                             flatpaks=[Flatpak(ref="com.example.App/x86_64/stable",
+                                               remote="flathub")],
+                             flatpak_remotes=["flathub"]),
+        "apps": [AppCapture(adapter="ollama", data={"models": ["llama3"]}, config_blobs=[])],
+        "blobs": [BlobRef(sha256="ab" * 32, size_bytes=10, store_path="x", owner_uid=0,
+                          owner_gid=0, mode="0644", tag="config")],
+        "identity": Identity(hostname="h", username="u", uid=1000, realname="U",
+                             ssh_pubkeys=[]),
+        "adapter_order": ["ollama"],
+    }
 
 
 def test_roundtrip(tmp_path: Path) -> None:

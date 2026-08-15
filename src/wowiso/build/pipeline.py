@@ -15,7 +15,6 @@ from .extract import extract_base_iso
 from .payload import inject_payload
 from .repack import repack_iso
 from .seed import inject_seed
-from .workdir import WorkDir
 
 _DIST = Path("dist")
 
@@ -44,17 +43,22 @@ def build_repo(
     out = _DIST / out_filename(manifest.profile, "repo")
     creds_path = _DIST / out_filename(manifest.profile, "repo", ext="credentials.txt")
     creds_path.write_text(creds, encoding="utf-8")
+    creds_path.chmod(0o600)  # carries the one-time plaintext password (S3)
 
     if emit == "iso":
         repack_iso(wd, out, wd.label)
     elif emit == "usb":
+        if device is None:
+            raise ValueError("--emit usb requires --device /dev/sdX")
         from .usb import write_usb  # P2.3
         repack_iso(wd, out, wd.label)
-        write_usb(out, Path(device), multiboot=True)
+        write_usb(out, device, multiboot=True)
     elif emit == "netboot":
+        if http_root is None:
+            raise ValueError("--emit netboot requires --http-root DIR")
         from ..netboot import publish_http  # P2.4 — lazy
         repack_iso(wd, out, wd.label)
-        publish_http(wd, Path(http_root))  # type: ignore[arg-type]
+        publish_http(wd, http_root)
     else:
         raise ValueError(f"unknown emit target: {emit}")
     return out
