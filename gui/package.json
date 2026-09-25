@@ -1,7 +1,7 @@
 {
   "name": "wowiso-gui",
   "private": true,
-  "version": "1.3.80595",
+  "version": "1.4.1347",
   "type": "module",
   "description": "Tauri2 front end for wowiso. Windows build shells to the Python core via WSL2.",
   "scripts": {

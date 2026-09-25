@@ -1,0 +1,10 @@
+{
+  "bundle": {
+    "publisher": "Robin L. M. Cheung, MBA",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "offlineInstaller"
+      }
+    }
+  }
+}

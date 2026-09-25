@@ -88,6 +88,17 @@ EOF
   [ -f gui/src-tauri/Cargo.toml ] && \
     sed -i '0,/^version *= *"[^"]*"/s//version = "'"${SEMVER_VERSION}"'"/' gui/src-tauri/Cargo.toml
 
+  # MSI ProductVersion caps patch at 65535; BUILD (epoch-min%100000) can exceed
+  # it, so the WiX leg gets MAJOR.MINOR.(BUILD/100).(BUILD%100) via the
+  # platform config (tauri.windows.conf.json — kept OUT of tauri.conf.json so
+  # the blanket "version" sed above cannot clobber it).
+  [ -f gui/src-tauri/tauri.windows.conf.json ] && command -v jq >/dev/null && {
+    WIX_VERSION="${MAJOR}.${MINOR}.$((BUILD_NUM / 100)).$((BUILD_NUM % 100))"
+    jq --arg v "${WIX_VERSION}" '.bundle.windows.wix.version = $v' \
+      gui/src-tauri/tauri.windows.conf.json > gui/src-tauri/tauri.windows.conf.json.tmp
+    mv gui/src-tauri/tauri.windows.conf.json.tmp gui/src-tauri/tauri.windows.conf.json
+  }
+
   export PROJECT_VERSION="${DISPLAY_VERSION}" PROJECT_SEMVER="${SEMVER_VERSION}" PROJECT_VERSION_CODE="${VERSION_CODE}"
   echo "[update-version] ${MODE}: ${DISPLAY_VERSION}  (semver ${SEMVER_VERSION}, code ${VERSION_CODE})"
 }
